@@ -1,3 +1,5 @@
+include config.mk
+
 .SUFFIXES:
 .SUFFIXES: .o .c
 
@@ -5,26 +7,32 @@ HDR = henlein.h
 
 LIBHENLEIN = libhenlein.a
 LIBHENLEINSRC = henlein.c
-
 LIBHENLEINOBJ = $(LIBHENLEINSRC:.c=.o)
+
+BIN = example
 OBJ = $(BIN:=.o) $(LIBHENLEINOBJ)
 SRC = $(BIN:=.c)
-BIN = example
 
 all: $(BIN)
-
-$(BIN): $(LIBHENLEIN) $(@:=.o)
-
-$(OBJ): $(HDR) config.mk
 
 $(LIBHENLEIN): $(LIBHENLEINOBJ)
 	$(AR) rc $@ $?
 	$(RANLIB) $@
 
+$(BIN): $(LIBHENLEIN) $(@:=.o)
+
+$(OBJ): $(HDR) config.mk
+
+.o:
+	$(CC) $(LDFLAGS) -o $@ $< $(LIBHENLEIN)
+
+.c.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
 check: example
 	./example
 
-.PHONY: clean
-
 clean:
 	rm -f *.o $(BIN) $(LIBHENLEIN)
+
+.PHONY: all check clean
