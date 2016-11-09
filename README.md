@@ -5,6 +5,10 @@
 ## Example
 
 ```C
+/* initialise the library */
+int rc = henlein_init();
+assert(!rc); /* rc should return 0 if successful */
+/* now time something */
 uint64_t start = henlein_now();
 /* do stuff */
 uint64_t stop = henlein_now();
