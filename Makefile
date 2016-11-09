@@ -24,7 +24,7 @@ $(BIN): $(LIBHENLEIN) $(@:=.o)
 $(OBJ): $(HDR) config.mk
 
 .o:
-	$(CC) $(LDFLAGS) -o $@ $< $(LIBHENLEIN)
+	$(CC) -o $@ $< $(LIBHENLEIN) $(LDFLAGS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
