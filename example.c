@@ -1,4 +1,5 @@
 #include "henlein.h"
+#include <stdio.h>
 
 int main() {
 	int rc;
@@ -15,6 +16,8 @@ int main() {
 	stop = henlein_now();
 	diff = henlein_diff(stop, start);
 
+	printf("start: %lu stop: %lu diff: %lu\n", start, stop, diff);
+
 	if(diff == 0) return 1;
 
 	start = henlein_now();
@@ -27,6 +30,8 @@ int main() {
 	diff = henlein_diff(stop, start);
 	if(diff < 1000000000 || diff > 1100000000)
 		return -2;
+
+	printf("start: %lu stop: %lu diff: %lu\n", start, stop, diff);
 
 	return 0;
 }
