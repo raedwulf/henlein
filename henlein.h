@@ -43,13 +43,7 @@
 #endif
 #endif
 
-#if __STDC_VERSION__ >= 199901L || defined(HAVE_STDINT_H)
 #include <stdint.h>
-#elif defined(_MSC_VER)
-typedef unsigned __int64 uint64_t;
-#else
-typedef unsigned long long int uint64_t;
-#endif
 
 #ifdef _MSC_VER
 #define inline __inline
