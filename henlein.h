@@ -73,6 +73,13 @@ extern LARGE_INTEGER henlein_frequency;
 #else
 #warning "no high resolution clockid_t present"
 #endif
+#if defined(CLOCK_MONOTONIC_FAST)
+#define HENLEIN_CLOCK_MS CLOCK_MONOTONIC_FAST
+#elif defined(CLOCK_MONOTONIC_COARSE)
+#define HENLEIN_CLOCK_MS CLOCK_MONOTONIC_COARSE
+#else
+#define HENLEIN_CLOCK_MS HENLEIN_CLOCK
+#endif
 #endif
 #endif
 
@@ -84,34 +91,56 @@ extern mach_timebase_info_data_t henlein_timebase_info;
 
 int henlein_init();
 
-/* returns a high-precision OS-specific time value in nanoseconds */
-static inline uint64_t henlein_now() {
 #if defined(HENLEIN_WIN32)
-	LARGE_INTEGER value;
-	QueryPerformanceCounter(&value);
-	return ((uint64_t)value.QuadPart * 1000000000ULL) /
+#define HENLEIN_IMPLEMENTATION(scale)\
+	LARGE_INTEGER value;\
+	QueryPerformanceCounter(&value);\
+	return ((uint64_t)value.QuadPart * (1000000000ULL/(scale))) /\
 		henlein_frequency.QuadPart;
 #elif defined(HENLEIN_OSX)
-	return (mach_absolute_time() * henlein_timebase_info.numer) /
-		henlein_timebase_info.denom;
+#define HENLEIN_IMPLEMENTATION(scale)\
+	return (mach_absolute_time() * henlein_timebase_info.numer) /\
+		henlein_timebase_info.denom / (scale);
 #elif defined(HENLEIN_SUNOS) || defined(HENLEIN_HPUX)
-	return gethrtime();
+#define HENLEIN_IMPLEMENTATION(scale)\
+	return gethrtime() / (scale);
 #elif defined(HENLEIN_POSIX)
 #ifdef HENLEIN_CLOCK
-	struct timespec ts;
-	if (clock_gettime(HENLEIN_CLOCK, &ts) != -1)
-		return ((uint64_t)ts.tv_sec * 1000000000ULL) + ts.tv_nsec;
-	else
+#if scale == 1000000ULL
+#define HENLEIN_CLOCK_BEST HENLEIN_CLOCK_MS
+#else
+#define HENLEIN_CLOCK_BEST HENLEIN_CLOCK
+#endif
+#define HENLEIN_IMPLEMENTATION(scale)\
+	struct timespec ts;\
+	if (clock_gettime(HENLEIN_CLOCK_BEST, &ts) != -1)\
+		return ((uint64_t)ts.tv_sec * (1000000000ULL/(scale))) + (ts.tv_nsec/(scale));\
+	else\
 		return 0xFFFFFFFFFFFFFFFFULL;
 #else
 	/* non-highres fallback */
-	struct timeval tm;
-	gettimeofday(&tm, NULL);
-	return ((uint64_t)tm.tv_sec * 1000000000ULL) + (tm.tv_usec * 1000ULL);
+#define HENLEIN_IMPLEMENTATION(scale)\
+	struct timeval tm;\
+	gettimeofday(&tm, NULL);\
+	return ((uint64_t)tm.tv_sec * (1000000000ULL/(scale))) + ((tm.tv_usec * 1000ULL)/(scale));
 #endif
 #else
 #error "no high-resolution timer implementation"
 #endif
+
+/* returns a high-precision OS-specific time value in nanoseconds */
+static inline uint64_t henlein_now() {
+	HENLEIN_IMPLEMENTATION(1ULL);
+}
+
+/* returns a high-precision OS-specific time value in microseconds */
+static inline uint64_t henlein_unow() {
+	HENLEIN_IMPLEMENTATION(1000ULL);
+}
+
+/* returns a high-precision OS-specific time value in milliseconds */
+static inline uint64_t henlein_mnow() {
+	HENLEIN_IMPLEMENTATION(1000000ULL);
 }
 
 /* returns t2 - t1; assumes that t2 > t1 */
