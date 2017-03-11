@@ -148,4 +148,14 @@ static inline uint64_t henlein_diff(uint64_t t2, uint64_t t1) {
 	return t2 < t1 ? (UINT64_MAX - t1) - t2 + 1 : t2 - t1;
 }
 
+/* aliases */
+#ifndef HENLEIN_NO_SHORT_ALIASES
+#define hlinit henlein_init
+#define hlnow  henlein_now
+#define hlnnow henlein_now
+#define hlunow henlein_unow
+#define hlmnow henlein_mnow
+#define hldiff henlein_diff
+#endif
+
 #endif
