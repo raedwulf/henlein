@@ -20,8 +20,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef HENLEIN_INCLUDED_H
-#define HENLEIN_INCLUDED_H
+#ifndef HENLEIN_H
+#define HENLEIN_H
 
 #if defined(__unix__) || defined(__unix) || defined(unix)
 #define HENLEIN_UNIX
@@ -129,22 +129,30 @@ int henlein_init();
 #endif
 
 /* returns a high-precision OS-specific time value in nanoseconds */
-static inline uint64_t henlein_now() {
+static inline uint64_t
+henlein_now()
+{
 	HENLEIN_IMPLEMENTATION(1ULL);
 }
 
 /* returns a high-precision OS-specific time value in microseconds */
-static inline uint64_t henlein_unow() {
+static inline uint64_t
+henlein_unow()
+{
 	HENLEIN_IMPLEMENTATION(1000ULL);
 }
 
 /* returns a high-precision OS-specific time value in milliseconds */
-static inline uint64_t henlein_mnow() {
+static inline uint64_t
+henlein_mnow()
+{
 	HENLEIN_IMPLEMENTATION(1000000ULL);
 }
 
 /* returns t2 - t1; assumes that t2 > t1 */
-static inline uint64_t henlein_diff(uint64_t t2, uint64_t t1) {
+static inline uint64_t
+henlein_diff(uint64_t t2, uint64_t t1)
+{
 	return t2 < t1 ? (UINT64_MAX - t1) - t2 + 1 : t2 - t1;
 }
 
