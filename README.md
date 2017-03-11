@@ -18,4 +18,6 @@ printf("%llu nanoseconds elapsed\n", diff);
 
 ## License
 
-henlein is licensed under the MIT license.
+henlein is licensed under the [MIT license](LICENSE).
+The contributing authors which collectively hold copyright are listed in [AUTHORS](AUTHORS).
+
