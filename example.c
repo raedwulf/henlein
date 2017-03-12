@@ -86,7 +86,7 @@ main()
 	}
 
 	cycles = henlein_tsc_measure();
-	printf("tsc measure (0.5 ms): %" PRIi64 "\n", diff);
+	printf("tsc measure (0.5 ms): %" PRIi64 "\n", cycles);
 
 	cache_tsc = 0;
 	cache_mnow = 0;
@@ -102,6 +102,9 @@ main()
 	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
 
+	if (diff != 1)
+		return -2;
+
 	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
 #ifdef HENLEIN_WIN32
 	Sleep(1000);
@@ -113,6 +116,9 @@ main()
 
 	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
+
+	if (diff != 1)
+		return -2;
 
 	return 0;
 }
