@@ -8,8 +8,8 @@ CC = cc
 AR = ar
 RANLIB = ranlib
 
-CPPFLAGS = -D_XOPEN_SOURCE=700
-CFLAGS   = -O2 -std=c99 -Wall -pedantic
+CPPFLAGS = -D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
+CFLAGS   = -O2 -std=gnu99 -Wall -pedantic
 LDFLAGS  = -s
 
 ifneq ($(OS),Windows_NT)

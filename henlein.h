@@ -89,7 +89,21 @@ extern LARGE_INTEGER henlein_frequency;
 extern mach_timebase_info_data_t henlein_timebase_info;
 #endif
 
+#if defined(__x86_64__) || defined(__i386__)
+#include <x86intrin.h>
+
+#define HENLEIN_RDTSC() __rdtsc()
+#endif
+
+enum henlein_tscsupport {
+	HL_NOT_SUPPORTED = -1,
+	HL_INVARIANT_TSC = 0,
+	HL_STABLE_TSC = 1,
+};
+
 int henlein_init();
+int henlein_tsc_support();
+int64_t henlein_tsc_measure();
 
 #if defined(HENLEIN_WIN32)
 #define HENLEIN_IMPLEMENTATION(scale)\
@@ -128,6 +142,18 @@ int henlein_init();
 #error "no high-resolution timer implementation"
 #endif
 
+#ifndef HENLEIN_DEFAULT_CYCLES
+#define HENLEIN_DEFAULT_CYCLES 1000000ULL
+#endif
+
+#ifdef __GNUC__
+#define henlein_likely(x) (__builtin_expect(!!(x), 1))
+#define henlein_unlikely(x) (__builtin_expect(!!(x), 0))
+#else
+#define henlein_likely(x) (x)
+#define henlein_unlikely(x) (x)
+#endif
+
 /* returns a high-precision OS-specific time value in nanoseconds */
 static inline uint64_t
 henlein_now()
@@ -156,14 +182,35 @@ henlein_diff(uint64_t t2, uint64_t t1)
 	return t2 < t1 ? (UINT64_MAX - t1) - t2 + 1 : t2 - t1;
 }
 
+/* returns a cached millisecond timer */
+#if defined(__x86_64__) || defined(__i386__)
+static inline uint64_t
+henlein_cmnow(int64_t cycles, uint64_t *cache_tsc, uint64_t *cache_mnow)
+{
+	uint64_t t = HENLEIN_RDTSC();
+	int64_t d = t - *cache_tsc;
+	if (d < 0) d = -d;
+	if (henlein_likely(d < cycles))
+		return (*cache_mnow);
+	*cache_tsc = t;
+	*cache_mnow = henlein_mnow();
+	return *cache_mnow;
+}
+#else
+#define henlein_cmnow(a,b,c) henlein_mnow()
+#endif
+
 /* aliases */
 #ifndef HENLEIN_NO_SHORT_ALIASES
-#define hlinit henlein_init
-#define hlnow  henlein_now
-#define hlnnow henlein_now
-#define hlunow henlein_unow
-#define hlmnow henlein_mnow
-#define hldiff henlein_diff
+#define hlinit    henlein_init
+#define hltscsup  henlein_tsc_support
+#define hlmeasure henlein_tsc_measure
+#define hlnow     henlein_now
+#define hlnnow    henlein_now
+#define hlunow    henlein_unow
+#define hlmnow    henlein_mnow
+#define hlcmnow   henlein_cmnow
+#define hldiff    henlein_diff
 #endif
 
 #endif

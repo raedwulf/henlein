@@ -9,7 +9,8 @@ main()
 {
 	int rc;
 	volatile int unopt;
-	uint64_t start, stop, diff;
+	uint64_t start, stop, diff, cache_tsc, cache_mnow;
+	int64_t cycles;
 
 	rc = henlein_init();
 	if (rc) return rc;
@@ -70,6 +71,44 @@ main()
 
 	if (diff < 1000 || diff > 1100)
 		return -2;
+
+	switch (henlein_tsc_support()) {
+	case HL_INVARIANT_TSC:
+		printf("tsc support: invariant tsc\n"); break;
+	case HL_STABLE_TSC:
+		printf("tsc support: stable tsc\n"); break;
+	default:
+		printf("tsc support: not supported\n");
+	}
+
+	cycles = henlein_tsc_measure();
+	printf("tsc measure (0.5 ms): %" PRIi64 "\n", diff);
+
+	cache_tsc = 0;
+	cache_mnow = 0;
+	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
+#ifdef HENLEIN_WIN32
+	Sleep(1);
+#else
+	usleep(1000);
+#endif
+	stop = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
+	diff = henlein_diff(stop, start);
+
+	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
+		start, stop, diff);
+
+	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
+#ifdef HENLEIN_WIN32
+	Sleep(1000);
+#else
+	sleep(1);
+#endif
+	stop = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
+	diff = henlein_diff(stop, start);
+
+	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
+		start, stop, diff);
 
 	return 0;
 }
