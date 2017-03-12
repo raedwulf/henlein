@@ -1,8 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
-#include "henlein.h"
 #include <stdio.h>
 #include <inttypes.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#include "henlein.h"
 
 int
 main()
