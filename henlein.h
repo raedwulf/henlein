@@ -103,7 +103,7 @@ enum henlein_tscsupport {
 
 int henlein_init();
 int henlein_tsc_support();
-int64_t henlein_tsc_measure();
+int64_t henlein_tsc_measure(int ms);
 
 #if defined(HENLEIN_WIN32)
 #define HENLEIN_IMPLEMENTATION(scale)\

@@ -135,7 +135,7 @@ henlein_tsc_support()
 }
 
 int64_t
-henlein_tsc_measure()
+henlein_tsc_measure(int ms)
 {
 	int support;
 
@@ -144,16 +144,12 @@ henlein_tsc_measure()
 
 	uint64_t start_rdtsc = HENLEIN_RDTSC();
 #ifndef _WIN32
-	usleep(100);
+	usleep(ms * 1000);
 #else
-	Sleep(1);
+	Sleep(ms);
 #endif
 	uint64_t stop_rdtsc = HENLEIN_RDTSC();
 	int64_t diff_rdtsc = stop_rdtsc - start_rdtsc;
 	if(diff_rdtsc < 0) diff_rdtsc = -diff_rdtsc;
-#ifndef _WIN32
-	return diff_rdtsc * 3;
-#else
-	return diff_rdtsc >> 1;
-#endif
+	return diff_rdtsc;
 }

@@ -85,7 +85,7 @@ main()
 		printf("tsc support: not supported\n");
 	}
 
-	cycles = henlein_tsc_measure();
+	cycles = henlein_tsc_measure(1) >> 2;
 	printf("tsc measure (0.5 ms): %" PRIi64 "\n", cycles);
 
 	cache_tsc = 0;
