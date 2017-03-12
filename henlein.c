@@ -152,7 +152,7 @@ henlein_tsc_measure()
 	int64_t diff_rdtsc = stop_rdtsc - start_rdtsc;
 	if(diff_rdtsc < 0) diff_rdtsc = -diff_rdtsc;
 #ifndef _WIN32
-	return diff_rdtsc * 5;
+	return diff_rdtsc * 3;
 #else
 	return diff_rdtsc >> 1;
 #endif
