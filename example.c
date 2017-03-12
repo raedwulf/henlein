@@ -117,7 +117,7 @@ main()
 	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
 
-	if (diff != 1)
+	if (diff < 1000 || diff > 1100)
 		return -2;
 
 	return 0;
