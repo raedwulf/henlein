@@ -92,9 +92,9 @@ main()
 	cache_mnow = 0;
 	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
 #ifdef HENLEIN_WIN32
-	Sleep(1);
+	Sleep(2);
 #else
-	usleep(1000);
+	usleep(2000);
 #endif
 	stop = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
 	diff = henlein_diff(stop, start);
@@ -102,7 +102,7 @@ main()
 	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
 
-	if (diff != 1)
+	if (diff < 1 || diff > 3)
 		return -2;
 
 	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
