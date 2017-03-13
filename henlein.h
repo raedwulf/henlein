@@ -96,6 +96,7 @@ extern mach_timebase_info_data_t henlein_timebase_info;
 #endif
 
 enum henlein_tscsupport {
+	HL_UNSTABLE_TSC = -2,
 	HL_NOT_SUPPORTED = -1,
 	HL_INVARIANT_TSC = 0,
 	HL_STABLE_TSC = 1,

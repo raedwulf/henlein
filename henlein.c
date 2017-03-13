@@ -11,8 +11,13 @@
 #include <unistd.h>
 #endif
 
-#include "henlein.h"
+#if defined(__GNUC__)
+#include <cpuid.h>
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
+#include "henlein.h"
 
 #ifdef HENLEIN_WIN32
 LARGE_INTEGER henlein_frequency;
@@ -64,7 +69,8 @@ nprocs()
 int
 henlein_tsc_support()
 {
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__) ||\
+    defined(_M_X64) || defined(_M_IX86)
 	enum vendorid {
 		intel,
 		amd,
@@ -72,16 +78,27 @@ henlein_tsc_support()
 	};
 
 	uint32_t eax, ebx, ecx, edx;
-	uint32_t cpuid, family, model;
+	uint32_t family, model;
 	int vendor;
 
+#ifdef __GNUC__
+#define CPUID(i,a,b,c,d) __cpuid(i,a,b,c,d)
+#elif _MSC_VER
+#define CPUID(i,a,b,c,d)\
+	do {\
+		unsigned int reg[4];\
+		__cpuid(r, i);\
+		a = r[0]; b = r[1]; c = r[2]; d = r[3];\
+	} while (0);
+#else
 #define CPUID(i,a,b,c,d)\
 	asm volatile("cpuid"\
 		: "=a" (a), "=b" (b), "=c" (c), "=d" (d)\
-		: "a" (i), "c" (0))
+		: "a" (i))
+#endif
 
-	CPUID(0x80000000, eax, ebx, ecx, edx);
-	cpuid = eax;
+	CPUID(0x00000000, eax, ebx, ecx, edx);
+
 	if (ebx == 0x756e6547 && ecx == 0x6c65746e && edx == 0x49656e69)
 		vendor = intel;
 	else if (ebx == 0x68747541 && ecx == 0x444d4163 && edx == 0x69746e65)
@@ -90,15 +107,16 @@ henlein_tsc_support()
 		vendor = other;
 
 	/* tsc invariant flag */
-	if (eax >= 0x80000007) {
-		CPUID(0x80000007, eax, ebx, ecx, edx);
+	if (eax >= 0x00000007) {
+		CPUID(0x00000007, eax, ebx, ecx, edx);
 		if (edx & 0x00000100)
 			return HL_INVARIANT_TSC;
 	}
 
 	/* get family */
-	family = ((cpuid & 0x00000f00) >> 8) | ((cpuid & 0x0ff00000) >> 20);
-	model = ((cpuid & 0x000000f0) >> 4) | ((cpuid & 0x000f0000) >> 12);
+	CPUID(0x00000001, eax, ebx, ecx, edx);
+	family = ((eax & 0x00000f00) >> 8) | ((eax & 0x0ff00000) >> 20);
+	model = ((eax & 0x000000f0) >> 4) | ((eax & 0x000f0000) >> 12);
 
 	/* check intel version */
 	switch (vendor) {
@@ -114,17 +132,18 @@ henlein_tsc_support()
 		if (family == 0xf || family == 0x6) {
 			/* only support single core */
 			if (nprocs() != 1)
-				return HL_NOT_SUPPORTED;
+				return HL_UNSTABLE_TSC;
 			/* check if enhanced speed-step is available */
-			CPUID(0x80000001, eax, ebx, ecx, edx);
 			if (ecx & 0x80)
-				return HL_NOT_SUPPORTED;
+				return HL_UNSTABLE_TSC;
 			else
 				return HL_STABLE_TSC;
 		}
+		if (family >= 0x6)
+			return HL_UNSTABLE_TSC;
 		break;
 	case amd:
-		if (cpuid == 0x60fb2)
+		if (eax == 0x60fb2)
 			return HL_INVARIANT_TSC;
 		if (family >= 0x10)
 			return HL_INVARIANT_TSC;
@@ -137,11 +156,8 @@ henlein_tsc_support()
 int64_t
 henlein_tsc_measure(int ms)
 {
-	int support;
-
-	if ((support = henlein_tsc_support()) < 0)
-		return 0LL;
-
+#if defined(__x86_64__) || defined(__i386__) ||\
+    defined(_M_X64) || defined(_M_IX86)
 	uint64_t start_rdtsc = HENLEIN_RDTSC();
 #ifndef _WIN32
 	usleep(ms * 1000);
@@ -152,4 +168,7 @@ henlein_tsc_measure(int ms)
 	int64_t diff_rdtsc = stop_rdtsc - start_rdtsc;
 	if(diff_rdtsc < 0) diff_rdtsc = -diff_rdtsc;
 	return diff_rdtsc;
+#else
+	return 0LL;
+#endif
 }

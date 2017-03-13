@@ -11,7 +11,7 @@
 int
 main()
 {
-	int rc;
+	int rc, support;
 	volatile int unopt;
 	uint64_t start, stop, diff, cache_tsc, cache_mnow;
 	int64_t cycles;
@@ -76,13 +76,17 @@ main()
 	if (diff < 1000 || diff > 1100)
 		return -2;
 
-	switch (henlein_tsc_support()) {
+	support = henlein_tsc_support();
+	switch (support) {
 	case HL_INVARIANT_TSC:
 		printf("tsc support: invariant tsc\n"); break;
 	case HL_STABLE_TSC:
 		printf("tsc support: stable tsc\n"); break;
+	case HL_UNSTABLE_TSC:
+		printf("tsc support: unstable tsc\n"); break;
 	default:
 		printf("tsc support: not supported\n");
+		return 0;
 	}
 
 	cycles = henlein_tsc_measure(1) >> 2;
