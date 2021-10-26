@@ -103,10 +103,10 @@ main()
 	stop = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
 	diff = henlein_diff(stop, start);
 
-	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
+	printf("cmstart: %" PRIu64 " cmstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
 
-	if (diff < 1 || diff > 3)
+	if (diff < 1 || diff > 10)
 		return -2;
 
 	start = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
@@ -118,7 +118,7 @@ main()
 	stop = henlein_cmnow(cycles, &cache_tsc, &cache_mnow);
 	diff = henlein_diff(stop, start);
 
-	printf("cmstart: %" PRIu64 " mstop: %" PRIu64 " diff: %" PRIu64 "\n",
+	printf("cmstart: %" PRIu64 " cmstop: %" PRIu64 " diff: %" PRIu64 "\n",
 		start, stop, diff);
 
 	if (diff < 1000 || diff > 1100)
