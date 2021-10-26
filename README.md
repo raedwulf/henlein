@@ -1,6 +1,6 @@
 # henlein: two file cross-platform C timer
 
-[![Build Status](https://travis-ci.com/raedwulf/henlein.svg?branch=master)](https://travis-ci.com/raedwulf/henlein)
+[![Build Status](https://travis-ci.com/raedwulf/henlein.svg?branch=master)](https://app.travis-ci.com/github/raedwulf/henlein)
 
 ## Example
 
