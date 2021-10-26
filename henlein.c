@@ -59,7 +59,7 @@ nprocs()
 	count = get_nprocs();
 #elif defined(_WIN32)
 	SYSTEM_INFO info;
-	memset(info, 0, sizeof(info));
+	memset(&info, 0, sizeof(info));
 	GetSystemInfo(&info);
 	count = info.dwNumberOfProcessors;
 #endif
