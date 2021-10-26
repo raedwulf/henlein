@@ -176,11 +176,11 @@ henlein_mnow()
 	HENLEIN_IMPLEMENTATION(1000000ULL);
 }
 
-/* returns t2 - t1; assumes that t2 > t1 */
+/* returns difference t2 - t1; twos-complement if overflow */
 static inline uint64_t
 henlein_diff(uint64_t t2, uint64_t t1)
 {
-	return t2 < t1 ? (UINT64_MAX - t1) - t2 + 1 : t2 - t1;
+	return t2 - t1;
 }
 
 /* returns a cached millisecond timer */
