@@ -115,8 +115,8 @@ henlein_tsc_support()
 
 	/* get family */
 	CPUID(0x00000001, eax, ebx, ecx, edx);
-	family = ((eax & 0x00000f00) >> 8) | ((eax & 0x0ff00000) >> 20);
-	model = ((eax & 0x000000f0) >> 4) | ((eax & 0x000f0000) >> 12);
+	family = ((eax & 0x00000f00) >> 8) + ((eax & 0x0ff00000) >> 20);
+	model = ((eax & 0x000000f0) >> 4) + ((eax & 0x000f0000) >> 12);
 
 	/* check intel version */
 	switch (vendor) {
